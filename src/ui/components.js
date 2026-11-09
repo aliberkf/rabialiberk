@@ -217,6 +217,11 @@ export function openTicketForm({ ticket = null, defaults = {}, onSaved } = {}) {
   openModal({
     title: ticket ? 'BİLETİ DÜZENLE' : 'YENİ SEFER', content: form,
     actions: [
+      ...(ticket ? [{ label: '🗑 Sil', kind: 'btn-danger', close: false, onClick: async (close) => {
+        if (!confirm(`${formatDate(ticket.date)} — ${placeLabel(state.idx, ticket.from_place)} → ${placeLabel(state.idx, ticket.to_place)} silinsin mi?`)) return false;
+        try { await actions.deleteTicket(ticket.id); toast('Bilet silindi', 'ok'); close(); onSaved?.(null); } catch (e) { toast(e.message, 'err'); }
+        return false;
+      } }] : []),
       { label: 'Vazgeç', kind: 'btn-ghost' },
       ...(ticket ? [] : [{ label: 'Kaydet + dönüş ekle', kind: 'btn-ghost', close: false, onClick: (close) => save(close, true) }]),
       { label: 'Kaydet', kind: 'btn-primary', onClick: (close) => save(close, false) },

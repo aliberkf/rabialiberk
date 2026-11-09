@@ -12,7 +12,7 @@ export const CONFIG = {
 
   // Kaptanlar. Kodlar (abf / rkf) veri dosyasındaki owner/author alanlarıyla eşleşir.
   people: {
-    abf: { name: 'Ali Berk', short: 'Ali', color: '#c0392b', soft: '#e74c3c',
+    abf: { name: 'Ali Berk', short: 'Ali Berk', color: '#c0392b', soft: '#e74c3c',
       avatar: 'assets/img/avatar_aliberk.webp', sprite: 'assets/img/aliberk_body_front.webp', side: 'assets/img/aliberk_body_side.webp' },
     rkf: { name: 'Rabia', short: 'Rabia', color: '#2471a3', soft: '#3498db',
       avatar: 'assets/img/avatar_rabia.webp', sprite: 'assets/img/rabia_body_front.webp', side: 'assets/img/rabia_body_side.webp' },
