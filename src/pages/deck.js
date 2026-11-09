@@ -2,7 +2,7 @@
 import { CONFIG } from '../config.js';
 import { state, subscribe } from '../store.js';
 import { h, append } from '../ui/dom.js';
-import { formatDays, formatDate, placeLabel, upcomingTickets, MODES } from '../engine.js';
+import { formatDays, formatDaysSince, formatDate, placeLabel, upcomingTickets, MODES } from '../engine.js';
 import { openTicketForm, openEntryForm, ownerBadge, placeLink, entryCard } from '../ui/components.js';
 
 export function renderDeck(root) {
@@ -28,7 +28,7 @@ export function renderDeck(root) {
         h('img', { src: p.sprite, alt: p.name, class: 'captain-sprite' }),
         h('div', { class: 'captain-info' },
           h('div', { class: 'captain-name' }, p.name.toUpperCase()),
-          cur ? h('div', { class: 'captain-where' }, '📍 ', placeLink(cur.place), h('span', { class: 'muted' }, ` · ${formatDays(cur.days)}dır burada`)) : h('div', { class: 'captain-where muted' }, 'Konum bilinmiyor'),
+          cur ? h('div', { class: 'captain-where' }, '📍 ', placeLink(cur.place), h('span', { class: 'muted' }, ` · ${formatDaysSince(cur.days)} burada`)) : h('div', { class: 'captain-where muted' }, 'Konum bilinmiyor'),
           h('div', { class: 'captain-stats' },
             h('span', {}, h('b', {}, st.trips), ' sefer'), h('span', {}, h('b', {}, st.provinces.length), ' il'),
             h('span', {}, h('b', {}, st.countries.length), ' ülke'), h('span', {}, h('b', {}, st.km.toLocaleString('tr-TR')), ' km'))));

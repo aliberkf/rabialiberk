@@ -408,6 +408,7 @@ textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
 .big-stat { margin-bottom: 10px; }
 .years { display: flex; gap: 10px; flex-wrap: wrap; }
 .year-card { background: rgba(255,255,255,0.04); border: 2px solid var(--line); padding: 10px 14px; min-width: 110px; }
+.year-card b, .plain-list li b, .side-entry-head b { font-family: var(--num); font-size: 11px; }
 .year-num { font-family: var(--num); font-size: 12px; color: var(--gold); margin-bottom: 6px; }
 .coverage { display: grid; gap: 12px; }
 .cov-num b { font-family: var(--num); font-size: 16px; color: #fff; }

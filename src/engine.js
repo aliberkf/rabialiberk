@@ -236,3 +236,9 @@ export function locative(name) {
 export function upcomingTickets(tickets, today = isoToday()) {
   return sortTickets(tickets.filter(t => t.date > today));
 }
+
+/** "29 gündür", "1 aydır", "1 ay 27 gündür" — süre + "-dır/-dür" eki */
+export function formatDaysSince(n) {
+  const t = formatDays(n);
+  return t.endsWith('ay') ? `${t}dır` : `${t}dür`;
+}
