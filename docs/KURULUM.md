@@ -12,19 +12,17 @@ Toplam süre: ~40 dakika. Sırayla git; her adımın sonunda ne görmen gerekti�
 
 ---
 
-## 1. Google Sheets — veri dosyası
+## 1. Google Sheets — veri dosyası ✅ (yapıldı)
 
-1. [sheets.google.com](https://sheets.google.com) → **Boş** yeni tablo aç.
-2. **Dosya → İçe aktar → Yükle** → bu repodaki `data/rabialiberk-veri.xlsx` dosyasını seç.
-   İçe aktarma yeri: **E-tabloyu değiştir**. Onayla.
-3. Beş sayfa görmelisin: `README`, `tickets`, `places`, `entries`, `photos`.
-   `tickets`'ta 59 satır olmalı (eski 72 biletin 13'ü "birlikte" olarak birleşti).
-4. Tabloya ad ver (ör. **Rabialiberk Veri**) ve **Paylaş** ile Rabia'nın Google hesabına **Düzenleyen** yetkisi ver
-   (siteden değil, doğrudan tablodan düzenlemek isterseniz diye; site için şart değil).
+Drive'ındaki **"Data"** tablosu hazır: `README`, `tickets` (59 satır), `places` (6), `entries` (8), `photos` (boş).
+İstersen adını **Rabialiberk Veri** yap ve **Paylaş** ile Rabia'ya **Düzenleyen** yetkisi ver (tablodan elle düzeltme yapmak isterse; site için şart değil).
 
 > Sayfa adlarını ve sütun başlıklarını değiştirme. Satırları elle düzenlemek, silmek, eklemek serbest — site her açılışta ham veriyi okuyup hesaplar.
+> Bu tablo **gerçek veridir** ve repoya girmez; repodaki `data/seed.json` yalnızca uydurma demo verisidir.
 
-## 2. Google Cloud — "Google ile giriş" kimliği
+## 2. Google Cloud — "Google ile giriş" kimliği ✅ (yapıldı)
+
+İstemci kimliği `src/config.js`'e yazıldı. Aşağısı yalnızca ileride yeniden kurman gerekirse.
 
 Site, şifre yerine Google hesabınızla giriş yaptırır. Bunun için Google'dan ücretsiz bir "istemci kimliği" alınır.
 
@@ -58,6 +56,9 @@ Site, şifre yerine Google hesabınızla giriş yaptırır. Bunun için Google'd
    |---|---|
    | `CLIENT_ID` | 2. adımdaki istemci kimliği |
    | `ALLOWED` | `{"ali@gmail.com":"abf","rabia@gmail.com":"rkf"}` — kendi Google adreslerinizi yaz, küçük harfle. `abf` = Ali Berk, `rkf` = Rabia. |
+   | `DECK_PASSWORD` | (isteğe bağlı) Güverte parolası. Yazarsan Google girişine **ek olarak** bu parola da istenir; cihaz başına bir kez girilir. Değiştirince herkes yeniden girer. 8 yanlış denemede 15 dk kilit. |
+
+   **Erişimi tamamen sen yönetirsin:** `ALLOWED`'dan bir e-postayı silmek o kişinin erişimini anında keser; `DECK_PASSWORD`'ü değiştirmek herkesi yeniden parola girmeye zorlar. Şifre sıfırlama, hesap açma gibi şeyler yok — Google hesabı + senin listen.
 
    Kaydet.
 5. Editörde üstteki fonksiyon listesinden **`setup`** seç → **Çalıştır**. İlk seferde yetki ister:
@@ -74,10 +75,9 @@ Site, şifre yerine Google hesabınızla giriş yaptırır. Bunun için Google'd
 
 ## 4. Siteyi ayarla
 
-Repoda `src/config.js` dosyasını aç ve iki alanı doldur:
+Repoda `src/config.js` dosyasını aç; `clientId` zaten yazılı, `apiUrl` alanına 3. adımdaki web uygulaması adresini yaz:
 
 ```js
-clientId: 'BURAYA_ISTEMCI_KIMLIGI.apps.googleusercontent.com',
 apiUrl: 'https://script.google.com/macros/s/.../exec',
 ```
 
@@ -113,6 +113,13 @@ Alan adı Squarespace'te kalır; yalnızca "bu adres nereye gitsin" kaydı deği
 4. 10 dk – birkaç saat içinde `https://rabialiberk.com` GitHub Pages'ten açılır. GitHub Pages ayarında "DNS check successful" görünce **Enforce HTTPS**'i işaretle.
 5. Netlify'daki eski siteyi silebilirsin (Site settings → Delete site). Netlify Identity'deki kullanıcıların artık bir önemi yok.
 
+## Gizlilik notları
+
+- **Arama motorları:** `robots.txt` (Disallow: /) + her sayfada `noindex, nofollow`. Veri zaten giriş olmadan okunamaz; Google'ın görebileceği tek şey giriş ekranı.
+- **Repo herkese açık** (GitHub Pages ücretsiz planda şart). İçinde gizli bir şey yok: istemci kimliği zaten herkese açık bir değerdir, Apps Script adresi kimlik doğrulamadan veri vermez, gerçek veri (`private/`, `*.xlsx`) repoya girmez. Yalnızca piksel avatar/sprite görselleri repoda durur — eski sitede de herkese açık sunuluyorlardı. İstemezsen GitHub Pro ile repo özel yapılabilir.
+- **Fotoğraflar** Drive'da yalnızca senin erişebildiğin klasörde; siteye giriş yapmış kaptanlara Apps Script üzerinden servis edilir, dışarıdan link yok.
+- **client_secret** dosyası bu kurulumda kullanılmaz; indirdiysen sil, Cloud Console'dan "Reset secret" yapabilirsin.
+
 ## 7. İlk giriş
 
 `https://rabialiberk.com` → **Google ile giriş yap** → `ALLOWED` listesindeki hesaplardan biriyle gir. Güverte açılır, Türkiye haritası boyanmış gelir.
@@ -126,6 +133,7 @@ Bir şey ters giderse:
 | "Bu uygulama için verilmemiş kimlik" | Apps Script'teki `CLIENT_ID` ile `config.js`'teki `clientId` farklı. |
 | Giriş penceresi "origin not allowed" diyor | 2. adımdaki Yetkili JavaScript kaynaklarına tam adresi (https ile) ekle. |
 | "Sunucu kurulumu eksik" | Script Properties'te `CLIENT_ID`/`ALLOWED` yok. |
+| Sürekli "Güverte parolası" soruyor | `DECK_PASSWORD` ile yazdığın farklı; ya da tarayıcı localStorage'ı temizleniyor. |
 | Veri geliyor ama fotoğraf yüklenmiyor | `setup` çalıştırılmamış (klasör yok) ya da Drive yetkisi verilmemiş. `setup`'ı tekrar çalıştır. |
 | Haritada şehir boyanmıyor | Biletteki `to_place` kimliği katalogla uyuşmuyor; Biletler sayfasında o bileti düzenle. |
 
@@ -134,6 +142,8 @@ Bir şey ters giderse:
 ## Günlük kullanım
 
 - **Sefer eklemek:** Güverte → "Sefer ekle" ya da Biletler → "Yeni sefer". "Kim" alanında **Birlikte** seçersen tek bilet ikinize de işlenir. "Kaydet + dönüş ekle" dönüş biletini yönleri çevrilmiş olarak hazırlar.
+- **Gelecek tarihli bilet:** Rahatça gir. Tarihi gelene kadar hesaba katılmaz; Zaman ve Biletler'de **PLANLI** rozetiyle, Güverte'de "Yaklaşan seferler"de görünür. Tarih gelince kendiliğinden işlenir.
+- **Aynı gün birden çok bilet:** Sorun değil. Sıra tarih → saat → giriş sırasına göre kurulur; aradaki şehirde 0 gün kalınmış sayılır ama yer yine de "gidildi" diye boyanır. Sıra önemliyse **Saat** alanını doldur.
 - **Hikâyenin başı:** Her kişi için bir tane `start` (Başlangıç noktası) bileti vardır (17 Mayıs 2025). Gün sayımı oradan başlar; silme.
 - **Yeni yer:** Herhangi bir yer alanında "Yeni yer ekle" → adı yaz → "Haritada bul" koordinatı ve bağlı olduğu ili/ülkeyi doldurur. Yurt dışı şehirler **Şehir**, il/şehir içindeki yerler **Nokta** türündedir. Noktalar haritada iğne olur ve günleri bağlı oldukları ile/ülkeye de sayılır.
 - **Fotoğraf:** Bir yazının altındaki "Fotoğraf ekle" ya da Yer sayfasındaki buton. Tarayıcı fotoğrafı 1600 px'e küçültür, Drive'daki özel klasöre yazar. Fotoğraflar yalnızca giriş yapmış kaptanlara gösterilir.

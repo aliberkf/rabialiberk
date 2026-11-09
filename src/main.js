@@ -2,8 +2,8 @@
 import { CONFIG, DEMO } from './config.js';
 import { currentSession, renderButton, signOut } from './auth.js';
 import { state, load, subscribe } from './store.js';
-import { h, clear, toast, $ } from './ui/dom.js';
-import { ApiError } from './api.js';
+import { h, clear, toast, openModal } from './ui/dom.js';
+import { ApiError, setPasswordPrompt, deckPass } from './api.js';
 
 import { renderDeck } from './pages/deck.js';
 import { renderMap } from './pages/map.js';
@@ -104,8 +104,22 @@ function renderLogin(message) {
   if (!DEMO) renderButton(btn);
 }
 
+// Güverte parolası penceresi (Apps Script'te DECK_PASSWORD ayarlıysa)
+setPasswordPrompt((message) => new Promise((resolve) => {
+  const input = h('input', { type: 'password', autocomplete: 'current-password', placeholder: 'Güverte parolası', autofocus: true });
+  const form = h('form', { class: 'form', onSubmit: (e) => { e.preventDefault(); if (input.value) { resolve(input.value); m.close(); } } },
+    message && message !== 'Güverte parolası gerekli.' ? h('div', { class: 'login-msg' }, message) : null,
+    h('p', { class: 'muted small' }, 'Google girişine ek olarak kaptanların belirlediği parola.'),
+    input);
+  const m = openModal({ title: 'GÜVERTE PAROLASI', content: form,
+    actions: [{ label: 'Giriş', kind: 'btn-primary', close: false, onClick: () => { if (input.value) { resolve(input.value); m.close(); } return false; } }],
+    onClose: () => resolve(null) });
+  setTimeout(() => input.focus(), 50);
+}));
+
 function doSignOut() {
   signOut();
+  deckPass.set('');
   state.ready = false; state.me = null;
   renderLogin();
 }

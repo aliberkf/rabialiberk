@@ -56,18 +56,19 @@ export function renderTimeline(root) {
         continue;
       }
       const t = it.t;
+      const planned = t.date > state.today;
       const who = t.owner === 'both' ? ['rkf', 'abf'] : [t.owner];
       const stayInfo = who.map(w => stayByTicket.get(t.id + ':' + w)).filter(Boolean);
       const sameStay = stayInfo.length === 2 && stayInfo[0].days === stayInfo[1].days;
-      const stayText = t.mode === 'start'
+      const stayText = planned ? `${daysUntil(t.date)} sonra` : t.mode === 'start'
         ? `Hikâye burada başlıyor: ${placeLabel(state.idx, t.to_place)}`
         : stayInfo.length ? (sameStay || stayInfo.length === 1
           ? `${locative(placeLabel(state.idx, t.to_place))} ${stayInfo[0].open ? 'hâlâ ' : ''}${formatDays(stayInfo[0].days)}`
           : stayInfo.map(s => `${CONFIG.people[s.who].short}: ${formatDays(s.days)}`).join(' · ')) : '';
-      monthEl.append(h('div', { class: `tl-item tl-ticket owner-${t.owner}`, style: { '--c': personColor(t.owner) } },
+      monthEl.append(h('div', { class: `tl-item tl-ticket owner-${t.owner} ${planned ? 'planned' : ''}`, style: { '--c': personColor(t.owner) } },
         h('div', { class: 'tl-rail' }, h('span', { class: 'tl-dot' }, modeIcon(t.mode))),
         h('div', { class: 'tl-card panel', onClick: (e) => { if (!e.target.closest('a')) openTicketForm({ ticket: t }); } },
-          h('div', { class: 'tl-top' }, ownerBadge(t.owner, { small: true }), h('span', { class: 'tl-date' }, formatDate(t.date, { day: 'numeric', month: 'short', weekday: 'short' }) + (t.time ? ' · ' + t.time : ''))),
+          h('div', { class: 'tl-top' }, ownerBadge(t.owner, { small: true }), planned ? h('span', { class: 'badge badge-plan' }, 'PLANLI') : null, h('span', { class: 'tl-date' }, formatDate(t.date, { day: 'numeric', month: 'short', weekday: 'short' }) + (t.time ? ' · ' + t.time : ''))),
           t.mode === 'start'
             ? h('div', { class: 'tl-route' }, '🏁 ', placeLink(t.to_place))
             : h('div', { class: 'tl-route' }, placeLink(t.from_place), h('span', { class: 'arrow' }, ' → '), placeLink(t.to_place)),
@@ -78,6 +79,7 @@ export function renderTimeline(root) {
     }
   };
   const save = () => sessionStorage.setItem('tl.filter', filter);
+  const daysUntil = (iso) => { const n = Math.round((new Date(iso) - new Date(state.today)) / 86400000); return n === 1 ? '1 gün' : `${n} gün`; };
   draw();
   const unsub = subscribe(draw);
   return () => unsub();

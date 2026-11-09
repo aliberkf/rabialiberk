@@ -6,13 +6,22 @@ export class ApiError extends Error {
   constructor(message, code) { super(message); this.code = code || 'error'; }
 }
 
-async function callRemote(action, payload, retry = true) {
+const PASS_KEY = 'rabialiberk.deckpass';
+export const deckPass = {
+  get: () => localStorage.getItem(PASS_KEY) || '',
+  set: (v) => v ? localStorage.setItem(PASS_KEY, v) : localStorage.removeItem(PASS_KEY),
+};
+/** Parola gerektiğinde arayüzün soracağı fonksiyon (main.js kurar). */
+export let askPassword = null;
+export function setPasswordPrompt(fn) { askPassword = fn; }
+
+async function callRemote(action, payload, retry = true, passRetry = true) {
   const idToken = await getIdToken();
   const res = await fetch(CONFIG.apiUrl, {
     method: 'POST',
     // text/plain → CORS ön-isteği (preflight) tetiklemez; Apps Script bunu ister
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ idToken, action, payload }),
+    body: JSON.stringify({ idToken, action, payload, pass: deckPass.get() }),
     redirect: 'follow',
   });
   if (!res.ok) throw new ApiError('Sunucuya ulaşılamadı (' + res.status + ')', 'network');
@@ -21,7 +30,12 @@ async function callRemote(action, payload, retry = true) {
     if (data.code === 'auth' && retry) {
       // oturum süresi dolmuş olabilir: sessizce yenile ve bir kez daha dene
       const ok = await refreshToken();
-      if (ok) return callRemote(action, payload, false);
+      if (ok) return callRemote(action, payload, false, passRetry);
+    }
+    if (data.code === 'pass' && passRetry && askPassword) {
+      // güverte parolası: kullanıcıya sor, kaydet, tekrar dene
+      const p = await askPassword(data.error);
+      if (p) { deckPass.set(p); return callRemote(action, payload, retry, false); }
     }
     throw new ApiError(data.error || 'Bilinmeyen hata', data.code);
   }

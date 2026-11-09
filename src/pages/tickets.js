@@ -52,12 +52,13 @@ export function renderTickets(root) {
     for (const t of rows) {
       const y = t.date.slice(0, 4);
       if (y !== lastYear) { lastYear = y; list.append(h('div', { class: 'year-sep' }, y)); }
-      list.append(h('div', { class: `ticket panel owner-${t.owner}`, style: { '--c': personColor(t.owner) } },
+      const planned = t.date > state.today;
+      list.append(h('div', { class: `ticket panel owner-${t.owner} ${planned ? 'planned' : ''}`, style: { '--c': personColor(t.owner) } },
         h('div', { class: 'ticket-stub' }, h('span', { class: 'ticket-icon' }, modeIcon(t.mode)), h('span', { class: 'ticket-date' }, formatDate(t.date, { day: '2-digit', month: 'short' })), t.time ? h('span', { class: 'ticket-time' }, t.time) : null),
         h('div', { class: 'ticket-main' },
           h('div', { class: 'ticket-route' },
             t.mode === 'start' ? h('span', {}, '🏁 Başlangıç: ', placeLink(t.to_place)) : h('span', {}, placeLink(t.from_place, { withParent: true }), h('span', { class: 'arrow' }, ' → '), placeLink(t.to_place, { withParent: true }))),
-          h('div', { class: 'ticket-meta' }, ownerBadge(t.owner, { small: true }), h('span', {}, MODES[t.mode]?.label), t.carrier ? h('span', {}, t.carrier) : null, t.note ? h('span', { class: 'muted' }, t.note) : null)),
+          h('div', { class: 'ticket-meta' }, ownerBadge(t.owner, { small: true }), planned ? h('span', { class: 'badge badge-plan' }, 'PLANLI') : null, h('span', {}, MODES[t.mode]?.label), t.carrier ? h('span', {}, t.carrier) : null, t.note ? h('span', { class: 'muted' }, t.note) : null)),
         h('div', { class: 'ticket-actions' },
           h('button', { class: 'btn-icon', title: 'Düzenle', onClick: () => openTicketForm({ ticket: t }) }, '✏️'),
           h('button', { class: 'btn-icon', title: 'Dönüş ekle', onClick: () => openTicketForm({ defaults: { owner: t.owner, from_place: t.to_place, to_place: t.from_place, date: t.date, mode: t.mode } }) }, '↩︎'),

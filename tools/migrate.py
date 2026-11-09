@@ -1,4 +1,5 @@
 """Migrate the old workbook (abf_Biletler / rkf_Biletler / SeyirDefteri) into the new schema.
+# Çıktılar private/ altına yazılır (gitignore'da) — gerçek veri repoya girmez.
 Outputs: data/seed.json (demo mode) and data/rabialiberk-veri.xlsx (import into Google Sheets)."""
 import sys, json, datetime as dt, re, unicodedata
 import openpyxl
@@ -101,8 +102,8 @@ for n, r in enumerate(ws.iter_rows(min_row=2, values_only=True), 1):
 
 seed = {'places': places, 'tickets': out_tickets, 'entries': entries, 'photos': []}
 import os
-os.makedirs(f'{ROOT}/data', exist_ok=True)
-json.dump(seed, open(f'{ROOT}/data/seed.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+os.makedirs(f'{ROOT}/private', exist_ok=True)
+json.dump(seed, open(f'{ROOT}/private/seed.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
 # ---- Excel for Google Sheets import ------------------------------------------
 COLS = {
@@ -149,7 +150,7 @@ for name, cols in COLS.items():
     if name == 'entries':
         for cell in ws['F'][1:]: cell.alignment = Alignment(wrap_text=True, vertical='top')
     ws.freeze_panes = 'A2'
-xwb.save(f'{ROOT}/data/rabialiberk-veri.xlsx')
+xwb.save(f'{ROOT}/private/rabialiberk-veri.xlsx')
 
 print('tickets', len(out_tickets), 'both:', sum(t['owner'] == 'both' for t in out_tickets),
       'abf:', sum(t['owner'] == 'abf' for t in out_tickets), 'rkf:', sum(t['owner'] == 'rkf' for t in out_tickets))

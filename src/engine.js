@@ -139,7 +139,9 @@ export function aggregate(stays, idx, today = isoToday()) {
   for (const [id, d] of together) get(id).together = d;
   for (const a of agg.values()) {
     a.both = Math.min(a.abf, a.rkf);
-    a.color = a.abf > 0 && a.rkf > 0 ? 'both' : a.rkf > 0 ? 'rkf' : a.abf > 0 ? 'abf' : 'none';
+    // aynı gün aktarmalı geçişler 0 gün sayılır ama yer yine de "gidildi" olarak boyanır
+    const wasA = a.abf > 0 || a.visits.abf > 0, wasR = a.rkf > 0 || a.visits.rkf > 0;
+    a.color = wasA && wasR ? 'both' : wasR ? 'rkf' : wasA ? 'abf' : 'none';
     a.total = a.abf + a.rkf;
     a.stays.sort((x, y) => x.from.localeCompare(y.from));
   }
@@ -228,4 +230,9 @@ export function locative(name) {
   const back = 'aıou'.includes(last);
   const hard = 'pçtksşhf'.includes(lower[lower.length - 1]);
   return `${n}'${hard ? 't' : 'd'}${back ? 'a' : 'e'}`;
+}
+
+/** Gelecek tarihli (planlanmış) biletler — hesaba katılmaz, listede "planlı" görünür. */
+export function upcomingTickets(tickets, today = isoToday()) {
+  return sortTickets(tickets.filter(t => t.date > today));
 }

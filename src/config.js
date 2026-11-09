@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 export const CONFIG = {
   // Google Cloud → OAuth istemci kimliği (Apps Script'teki CLIENT_ID ile birebir aynı olmalı)
-  clientId: '',
+  clientId: '947980331108-14cnedb8imc8kitosimt7rp1pbrh0nov.apps.googleusercontent.com',
   // Apps Script web uygulaması adresi (…/exec ile biter)
   apiUrl: '',
 

@@ -9,6 +9,8 @@
  *   Script Properties:
  *     CLIENT_ID        → Google Cloud OAuth istemci kimliği (sitedeki ile aynı)
  *     ALLOWED          → {"ali@gmail.com":"abf","rabia@gmail.com":"rkf"}
+ *     DECK_PASSWORD    → (isteğe bağlı) güverte parolası; Google girişine EK olarak istenir.
+ *                         Değiştirince herkes bir sonraki açılışta yeniden girer.
  *     PHOTO_FOLDER_ID  → (setup() otomatik oluşturur)
  *     SPREADSHEET_ID   → (yalnızca script Sheet'e bağlı değilse)
  */
@@ -57,7 +59,7 @@ function doPost(e) {
   var started = Date.now();
   try {
     var body = JSON.parse((e.postData && e.postData.contents) || '{}');
-    var me = authenticate_(body.idToken);
+    var me = authenticate_(body);
     var action = String(body.action || '');
     var payload = body.payload || {};
     var fn = ACTIONS[action];
@@ -76,7 +78,8 @@ function json_(obj) {
 // ---------------------------------------------------------------------------
 // Kimlik doğrulama: Google ID token → e-posta → kişi kodu (abf | rkf)
 // ---------------------------------------------------------------------------
-function authenticate_(idToken) {
+function authenticate_(body) {
+  var idToken = body.idToken;
   if (!idToken) throw authError_('Giriş gerekli.');
   var props = PropertiesService.getScriptProperties();
   var clientId = props.getProperty('CLIENT_ID');
@@ -104,7 +107,26 @@ function authenticate_(idToken) {
   }
   var who = allowed[email];
   if (!who) throw authError_('Bu hesabın güverteye erişimi yok: ' + email);
+
+  // İsteğe bağlı ikinci kilit: güverte parolası (Script Properties → DECK_PASSWORD)
+  var deckPass = props.getProperty('DECK_PASSWORD');
+  if (deckPass) {
+    var given = String(body.pass || '');
+    if (!given) { var e1 = new Error('Güverte parolası gerekli.'); e1.code = 'pass'; throw e1; }
+    if (!rateLimitOk_(email)) { var e2 = new Error('Çok fazla yanlış deneme; 15 dakika bekle.'); e2.code = 'pass'; throw e2; }
+    if (hash_(given) !== hash_(deckPass)) { noteFailure_(email); var e3 = new Error('Parola yanlış.'); e3.code = 'pass'; throw e3; }
+  }
   return { email: email, who: who };
+}
+
+function rateLimitOk_(email) {
+  var n = Number(CacheService.getScriptCache().get('fail_' + email) || 0);
+  return n < 8;
+}
+function noteFailure_(email) {
+  var cache = CacheService.getScriptCache();
+  var n = Number(cache.get('fail_' + email) || 0) + 1;
+  cache.put('fail_' + email, String(n), 900);
 }
 
 function authError_(msg) { var e = new Error(msg); e.code = 'auth'; return e; }
