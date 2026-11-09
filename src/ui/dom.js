@@ -100,3 +100,18 @@ export function debounce(fn, ms = 250) {
   let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
 export function pluralDays(n) { return `${n} gün`; }
+
+/** Metindeki rakam öbeklerini <span class="num"> içine alır (rakam fontu yalnızca sayılara uygulanır). */
+export function num(text) {
+  const frag = document.createDocumentFragment();
+  const str = String(text ?? '');
+  const re = /\d[\d.,:]*/g;
+  let last = 0, m;
+  while ((m = re.exec(str))) {
+    if (m.index > last) frag.append(str.slice(last, m.index));
+    frag.append(h('span', { class: 'num' }, m[0]));
+    last = m.index + m[0].length;
+  }
+  if (last < str.length) frag.append(str.slice(last));
+  return frag;
+}

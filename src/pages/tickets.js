@@ -1,7 +1,7 @@
 // Biletler: liste (ara/filtre), ekle, düzenle, sil, tutarlılık uyarıları
 import { CONFIG } from '../config.js';
 import { state, subscribe, actions } from '../store.js';
-import { h, toast, confirmDialog } from '../ui/dom.js';
+import { h, toast, confirmDialog, num } from '../ui/dom.js';
 import { formatDate, sortTickets, placeLabel, MODES } from '../engine.js';
 import { ownerBadge, modeIcon, placeLink, personColor, openTicketForm } from '../ui/components.js';
 
@@ -54,7 +54,7 @@ export function renderTickets(root) {
       if (y !== lastYear) { lastYear = y; list.append(h('div', { class: 'year-sep' }, y)); }
       const planned = t.date > state.today;
       list.append(h('div', { class: `ticket panel owner-${t.owner} ${planned ? 'planned' : ''}`, style: { '--c': personColor(t.owner) } },
-        h('div', { class: 'ticket-stub' }, h('span', { class: 'ticket-icon' }, modeIcon(t.mode)), h('span', { class: 'ticket-date' }, formatDate(t.date, { day: '2-digit', month: 'short' })), t.time ? h('span', { class: 'ticket-time' }, t.time) : null),
+        h('div', { class: 'ticket-stub' }, h('span', { class: 'ticket-icon' }, modeIcon(t.mode)), h('span', { class: 'ticket-date' }, num(formatDate(t.date, { day: '2-digit', month: 'short' }))), t.time ? h('span', { class: 'ticket-time' }, t.time) : null),
         h('div', { class: 'ticket-main' },
           h('div', { class: 'ticket-route' },
             t.mode === 'start' ? h('span', {}, '🏁 Başlangıç: ', placeLink(t.to_place)) : h('span', {}, placeLink(t.from_place, { withParent: true }), h('span', { class: 'arrow' }, ' → '), placeLink(t.to_place, { withParent: true }))),

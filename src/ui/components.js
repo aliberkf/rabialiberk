@@ -1,7 +1,7 @@
 // Paylaşılan arayüz parçaları
 import { CONFIG } from '../config.js';
 import { state, actions, sel } from '../store.js';
-import { h, openModal, toast, field, select, debounce, escapeHtml } from './dom.js';
+import { h, openModal, toast, field, select, debounce, escapeHtml, num } from './dom.js';
 import { MODES, KINDS, placeLabel, formatDate, formatDays, isoToday } from '../engine.js';
 import { PROVINCES } from '../data/catalog.js';
 import { imgEl, uploadFiles } from '../photos.js';
@@ -285,7 +285,7 @@ export function openLightbox(photos, index, { editable = false, onChanged } = {}
     const p = photos[i];
     img.innerHTML = ''; img.append(imgEl(p.id, { alt: p.caption || '' }));
     cap.textContent = p.caption || '';
-    counter.textContent = `${i + 1} / ${photos.length}`;
+    counter.innerHTML = ''; counter.append(num(`${i + 1} / ${photos.length}`));
   };
   const prev = () => { i = (i - 1 + photos.length) % photos.length; show(); };
   const next = () => { i = (i + 1) % photos.length; show(); };
@@ -368,11 +368,11 @@ export function placeSummary(id) {
   if (!p) return h('div', {}, 'Bilinmeyen yer');
   const row = (who) => h('div', { class: 'stat-row' },
     h('span', { class: 'dot', style: { background: personColor(who) } }), h('span', { class: 'stat-name' }, personName(who)),
-    h('span', { class: 'stat-val' }, a ? formatDays(a[who] || 0) : '0 gün'),
-    a ? h('span', { class: 'stat-sub' }, `${a.visits[who]} ziyaret`) : null);
+    h('span', { class: 'stat-val' }, num(a ? formatDays(a[who] || 0) : '0 gün')),
+    a ? h('span', { class: 'stat-sub' }, num(`${a.visits[who]} ziyaret`)) : null);
   return h('div', { class: 'place-summary' },
     row('abf'), row('rkf'),
     h('div', { class: 'stat-row together' },
       h('span', { class: 'dot', style: { background: CONFIG.bothColor } }), h('span', { class: 'stat-name' }, 'Aynı anda'),
-      h('span', { class: 'stat-val' }, formatDays(a?.together || 0))));
+      h('span', { class: 'stat-val' }, num(formatDays(a?.together || 0)))));
 }

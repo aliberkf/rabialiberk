@@ -1,7 +1,7 @@
 // İstatistikler: kişi kartları, en çok kalınan yerler (çubuklar), ulaşım, yıllara göre
 import { CONFIG } from '../config.js';
 import { state, subscribe } from '../store.js';
-import { h } from '../ui/dom.js';
+import { h, num } from '../ui/dom.js';
 import { formatDays, formatDate, placeLabel, MODES } from '../engine.js';
 import { placeLink, personColor } from '../ui/components.js';
 
@@ -35,20 +35,20 @@ export function renderStats(root) {
         h('div', { class: 'bar-track' },
           h('div', { class: 'bar-seg', style: { width: (a.rkf / max * 100) + '%', background: CONFIG.people.rkf.color }, title: `${CONFIG.people.rkf.name}: ${a.rkf} gün` }),
           h('div', { class: 'bar-seg', style: { width: (a.abf / max * 100) + '%', background: CONFIG.people.abf.color }, title: `${CONFIG.people.abf.name}: ${a.abf} gün` })),
-        h('div', { class: 'bar-val' }, h('span', { style: { color: CONFIG.people.rkf.soft } }, a.rkf), ' / ', h('span', { style: { color: CONFIG.people.abf.soft } }, a.abf)))),
+        h('div', { class: 'bar-val' }, h('span', { class: 'num', style: { color: CONFIG.people.rkf.soft } }, a.rkf), ' / ', h('span', { class: 'num', style: { color: CONFIG.people.abf.soft } }, a.abf)))),
       h('div', { class: 'muted small' }, `${CONFIG.people.rkf.name} / ${CONFIG.people.abf.name}`));
 
     const together = [...agg.values()].filter(a => a.together > 0 && (idx.get(a.id)?.kind === 'province' || (idx.get(a.id)?.kind === 'country' && a.id !== 'TR')))
       .sort((a, b) => b.together - a.together).slice(0, 10);
     const togetherPanel = h('div', { class: 'panel' },
       h('div', { class: 'panel-title' }, 'AYNI ANDA AYNI YERDE'),
-      h('div', { class: 'big-stat' }, h('b', {}, formatDays(stats.togetherDays)), h('span', {}, `toplam · ${stats.bothTrips} ortak sefer`)),
-      h('ul', { class: 'plain-list' }, together.map(a => h('li', {}, placeLink(a.id), h('b', {}, formatDays(a.together))))));
+      h('div', { class: 'big-stat' }, h('b', {}, num(formatDays(stats.togetherDays))), h('span', {}, num(`toplam · ${stats.bothTrips} ortak sefer`))),
+      h('ul', { class: 'plain-list' }, together.map(a => h('li', {}, placeLink(a.id), h('b', {}, num(formatDays(a.together)))))));
 
     const years = Object.entries(stats.years).sort();
     const yearPanel = h('div', { class: 'panel' },
       h('div', { class: 'panel-title' }, 'YILLARA GÖRE'),
-      h('div', { class: 'years' }, years.map(([y, v]) => h('div', { class: 'year-card' }, h('div', { class: 'year-num' }, y), h('div', {}, h('b', {}, v.trips), ' sefer'), h('div', { class: 'muted' }, `${v.both} birlikte`)))));
+      h('div', { class: 'years' }, years.map(([y, v]) => h('div', { class: 'year-card' }, h('div', { class: 'year-num num' }, y), h('div', {}, h('b', { class: 'num' }, v.trips), ' sefer'), h('div', { class: 'muted' }, num(`${v.both} birlikte`))))));
 
     const provinces = new Set([...stats.per.abf.provinces, ...stats.per.rkf.provinces]);
     const countries = new Set([...stats.per.abf.countries, ...stats.per.rkf.countries]);
@@ -59,9 +59,9 @@ export function renderStats(root) {
 
     body.append(h('div', { class: 'stats-people' }, personCard('rkf'), personCard('abf')), h('div', { class: 'stats-grid' }, bars, h('div', { class: 'stats-col' }, togetherPanel, coverage, yearPanel)));
   };
-  const tile = (v, l) => h('div', { class: 'tile' }, h('b', {}, v), h('span', {}, l));
+  const tile = (v, l) => h('div', { class: 'tile' }, h('b', {}, num(v)), h('span', {}, l));
   const cov = (n, total, label) => h('div', { class: 'cov' },
-    h('div', { class: 'cov-num' }, h('b', {}, n), h('span', {}, ` / ${total} ${label}`)),
+    h('div', { class: 'cov-num' }, h('b', { class: 'num' }, n), h('span', {}, num(` / ${total} ${label}`))),
     h('div', { class: 'cov-track' }, h('div', { class: 'cov-fill', style: { width: (n / total * 100) + '%' } })));
   draw();
   const unsub = subscribe(draw);

@@ -1,7 +1,7 @@
 // Harita sayfası: dünya / Türkiye, boyama, pinler, yan panel
 import { CONFIG } from '../config.js';
 import { state, subscribe, sel } from '../store.js';
-import { h, clear, append } from '../ui/dom.js';
+import { h, clear, append, num } from '../ui/dom.js';
 import { createMap } from '../map/mapview.js';
 import { formatDays, formatDate, placeLabel, ancestors } from '../engine.js';
 import { placeSummary, photoGrid, ownerBadge, modeIcon, placeLink, personColor } from '../ui/components.js';
@@ -121,7 +121,7 @@ export function renderMap(root, { query, navigate }) {
         h('ul', { class: 'stay-list' }, staysList.map(s => h('li', {},
           h('span', { class: 'dot', style: { background: personColor(s.who) } }),
           h('span', {}, `${formatDate(s.from, { day: 'numeric', month: 'short', year: '2-digit' })}${s.to ? ' → ' + formatDate(s.to, { day: 'numeric', month: 'short', year: '2-digit' }) : ' → bugün'}`),
-          h('b', {}, formatDays(s.days)))))) : null,
+          h('b', {}, num(formatDays(s.days))))))) : null,
       photos.length ? h('div', { class: 'side-section' }, h('div', { class: 'side-sub' }, `FOTOĞRAFLAR · ${photos.length}`), photoGrid(photos)) : null,
       entries.length ? h('div', { class: 'side-section' },
         h('div', { class: 'side-sub' }, `DEFTER · ${entries.length}`),

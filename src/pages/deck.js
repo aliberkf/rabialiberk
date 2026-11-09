@@ -1,7 +1,7 @@
 // Güverte: sayaç, kaptanlar nerede, kısa özet, hızlı işlemler
 import { CONFIG } from '../config.js';
 import { state, subscribe } from '../store.js';
-import { h, append } from '../ui/dom.js';
+import { h, append, num } from '../ui/dom.js';
 import { formatDays, formatDaysSince, formatDate, placeLabel, upcomingTickets, MODES } from '../engine.js';
 import { openTicketForm, openEntryForm, ownerBadge, placeLink, entryCard } from '../ui/components.js';
 
@@ -11,7 +11,9 @@ export function renderDeck(root) {
   const tick = () => {
     const diff = Math.max(0, Date.now() - since);
     const d = Math.floor(diff / 86400000), hh = Math.floor((diff % 86400000) / 3600000), mm = Math.floor((diff % 3600000) / 60000), ss = Math.floor((diff % 60000) / 1000);
-    timer.innerHTML = `<span class="timer-days">${d}</span><span class="timer-unit">GÜN</span><br><span class="timer-small">${hh} SAAT ${mm} DAKİKA <span class="hl">${ss} SANİYE</span></span>`;
+    timer.innerHTML = '';
+    append(timer, [h('span', { class: 'timer-days num' }, d), h('span', { class: 'timer-unit' }, 'GÜN'), h('br'),
+      h('span', { class: 'timer-small' }, num(`${hh} SAAT ${mm} DAKİKA `), h('span', { class: 'hl' }, num(`${ss} SANİYE`)))]);
   };
   tick();
   const iv = setInterval(tick, 1000);
@@ -28,10 +30,10 @@ export function renderDeck(root) {
         h('img', { src: p.sprite, alt: p.name, class: 'captain-sprite' }),
         h('div', { class: 'captain-info' },
           h('div', { class: 'captain-name' }, p.name.toUpperCase()),
-          cur ? h('div', { class: 'captain-where' }, '📍 ', placeLink(cur.place), h('span', { class: 'muted' }, ` · ${formatDaysSince(cur.days)} burada`)) : h('div', { class: 'captain-where muted' }, 'Konum bilinmiyor'),
+          cur ? h('div', { class: 'captain-where' }, '📍 ', placeLink(cur.place), h('span', { class: 'muted' }, ' · ', num(formatDaysSince(cur.days)), ' burada')) : h('div', { class: 'captain-where muted' }, 'Konum bilinmiyor'),
           h('div', { class: 'captain-stats' },
-            h('span', {}, h('b', {}, st.trips), ' sefer'), h('span', {}, h('b', {}, st.provinces.length), ' il'),
-            h('span', {}, h('b', {}, st.countries.length), ' ülke'), h('span', {}, h('b', {}, st.km.toLocaleString('tr-TR')), ' km'))));
+            h('span', {}, h('b', { class: 'num' }, st.trips), ' sefer'), h('span', {}, h('b', { class: 'num' }, st.provinces.length), ' il'),
+            h('span', {}, h('b', { class: 'num' }, st.countries.length), ' ülke'), h('span', {}, h('b', { class: 'num' }, st.km.toLocaleString('tr-TR')), ' km'))));
     };
     const latest = [...entries].sort((a, b) => b.date.localeCompare(a.date))[0];
     const upcoming = upcomingTickets(state.tickets, state.today).slice(0, 4);
@@ -44,10 +46,10 @@ export function renderDeck(root) {
           h('button', { class: 'btn btn-gold', onClick: () => openEntryForm({}) }, '✍️ Deftere yaz'),
           h('a', { class: 'btn btn-ghost', href: '#/harita' }, '🗺️ Haritaya git')),
         h('div', { class: 'quick-stats' },
-          h('div', { class: 'qs' }, h('b', {}, stats.bothTrips), h('span', {}, 'birlikte sefer')),
-          h('div', { class: 'qs' }, h('b', {}, formatDays(stats.togetherDays)), h('span', {}, 'aynı yerde')),
-          h('div', { class: 'qs' }, h('b', {}, state.tickets.filter(t => t.mode !== 'start').length), h('span', {}, 'toplam bilet')),
-          h('div', { class: 'qs' }, h('b', {}, entries.length), h('span', {}, 'defter yazısı')))),
+          h('div', { class: 'qs' }, h('b', {}, num(stats.bothTrips)), h('span', {}, 'birlikte sefer')),
+          h('div', { class: 'qs' }, h('b', {}, num(formatDays(stats.togetherDays))), h('span', {}, 'aynı yerde')),
+          h('div', { class: 'qs' }, h('b', {}, num(state.tickets.filter(t => t.mode !== 'start').length)), h('span', {}, 'toplam bilet')),
+          h('div', { class: 'qs' }, h('b', {}, num(entries.length)), h('span', {}, 'defter yazısı')))),
       upcoming.length ? h('section', { class: 'panel upcoming' },
         h('div', { class: 'panel-title' }, 'YAKLAŞAN SEFERLER'),
         h('ul', { class: 'plain-list' }, upcoming.map(t => h('li', {},

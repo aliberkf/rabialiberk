@@ -1,7 +1,7 @@
 // Yer sayfası: bir ilin/ülkenin/noktanın tüm hikâyesi — özet, alt yerler, konaklamalar, yazılar, fotoğraflar
 import { CONFIG } from '../config.js';
 import { state, subscribe, sel, actions } from '../store.js';
-import { h, toast, confirmDialog, append } from '../ui/dom.js';
+import { h, toast, confirmDialog, append, num } from '../ui/dom.js';
 import { formatDate, formatDays, placeLabel, KINDS } from '../engine.js';
 import { placeSummary, photoGrid, uploadButton, entryCard, openEntryForm, openTicketForm, personColor, placeLink, openPlaceCreator } from '../ui/components.js';
 
@@ -45,7 +45,7 @@ export function renderPlace(root, { param }) {
             h('span', { class: 'dot', style: { background: personColor(s.who) } }),
             h('span', {}, `${formatDate(s.from, { day: 'numeric', month: 'short', year: '2-digit' })} → ${s.to ? formatDate(s.to, { day: 'numeric', month: 'short', year: '2-digit' }) : 'bugün'}`),
             s.place !== id ? h('span', { class: 'muted' }, placeLabel(state.idx, s.place)) : null,
-            h('b', {}, formatDays(s.days)))))) : null),
+            h('b', {}, num(formatDays(s.days))))))) : null),
       photos.length ? h('div', { class: 'panel' }, h('div', { class: 'panel-title' }, `FOTOĞRAFLAR · ${photos.length}`), photoGrid(photos, { editable: true, onChanged: draw })) : null,
       entries.length ? h('div', { class: 'place-entries' }, h('div', { class: 'section-title' }, `DEFTER · ${entries.length}`), entries.map(e => entryCard(e, { onChanged: draw }))) : null,
     ]);
