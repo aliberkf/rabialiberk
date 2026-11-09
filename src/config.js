@@ -5,7 +5,7 @@ export const CONFIG = {
   // Google Cloud → OAuth istemci kimliği (Apps Script'teki CLIENT_ID ile birebir aynı olmalı)
   clientId: '947980331108-14cnedb8imc8kitosimt7rp1pbrh0nov.apps.googleusercontent.com',
   // Apps Script web uygulaması adresi (…/exec ile biter)
-  apiUrl: '',
+  apiUrl: 'https://script.google.com/macros/s/AKfycbxb48z0y0Mzx1vLGyxF7KMUPSBRx07Ts0AYQHpEUhL68sDLhsgCA-ePNf9_2quX6JQfKg/exec',
 
   // Hikâyenin başlangıcı — "birlikte geçen zaman" sayacı buradan sayar
   togetherSince: '2025-07-10T20:15:00',
