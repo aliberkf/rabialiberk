@@ -6,7 +6,7 @@
  *   - "Diziler"  sekmesi: takip edilen diziler
  *   - "Bolumler" sekmesi: tüm bölümler + izlendi işaretleri
  * Bölüm verisi: TVmaze açık API'si (anahtarsız). 6 saatte bir otomatik güncellenir.
- * Takvim: "📺 Dizi Takvimi" — yeni bölümler oraya eklenir, tarih değişirse güncellenir.
+ * Takvim: "Televizyon" — yeni bölümler oraya eklenir, tarih değişirse güncellenir.
  *
  * Kurulum: editörde bir kez "setupDizi" çalıştır.
  * Erişim: Script Properties → DIZI_ALLOWED = ["abf"] (varsayılan yalnızca Ali Berk).
@@ -25,7 +25,7 @@ var Dizi = (function () {
   const TVMAZE = 'https://api.tvmaze.com';
   const SH_SHOWS = 'Diziler';
   const SH_EPS = 'Bolumler';
-  const CAL_NAME = '📺 Dizi Takvimi';
+  const CAL_NAME = 'Televizyon';
   const P_SS = 'DIZI_SS_ID', P_CAL = 'DIZI_CAL_ID', P_LAST = 'DIZI_LAST_SYNC', P_ALLOWED = 'DIZI_ALLOWED';
 
   const SHOW_COLS = ['tvmaze_id', 'imdb_id', 'ad', 'durum', 'kanal', 'baslangic_yili', 'poster',
@@ -58,12 +58,15 @@ var Dizi = (function () {
       if (sh && sh.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(sh);
     });
 
-    if (!getCal_()) {
+    const existingCal = getCal_();
+    if (!existingCal) {
       const cal = CalendarApp.createCalendar(CAL_NAME, {
         summary: 'Takip ettiğin dizilerin yeni bölümleri (dizi.rabialiberk.com otomatik günceller)',
         timeZone: Session.getScriptTimeZone()
       });
       p.setProperty(P_CAL, cal.getId());
+    } else if (existingCal.getName() !== CAL_NAME) {
+      existingCal.setName(CAL_NAME);   // ad değişikliği; kimlik aynı kalır
     }
 
     ScriptApp.getProjectTriggers()
@@ -323,7 +326,7 @@ var Dizi = (function () {
   function epTiming_(show, e) {
     const code = 'S' + pad_(e.sezon) + 'E' + pad_(e.bolum);
     const generic = !e.bolum_adi || /^(episode|bölüm)\s*\d+$/i.test(e.bolum_adi) || e.bolum_adi === 'TBA';
-    const title = '📺 ' + show.ad + ' ' + code + (generic ? '' : ' · ' + e.bolum_adi);
+    const title = show.ad + ' ' + code + (generic ? '' : ' · ' + e.bolum_adi);
     if (e.saat_belli && e.yayin_zamani) {
       const start = new Date(e.yayin_zamani);
       const end = new Date(start.getTime() + (Number(e.sure_dk) || 60) * 60000);
