@@ -1,9 +1,9 @@
 /**
- * 🎸 AKOR DEFTERİ modülü — akor.rabialiberk.com'un arka ucu
+ * 🎸 AKOR DEFTERİ modülü — gitar.rabialiberk.com'un arka ucu
  * ------------------------------------------------------------
  * Code.gs'teki web uygulamasının içinde çalışır; kimlik doğrulama orada yapılır.
  * Veritabanı: ayrı bir "Akor Defteri" E-Tablosu (setupAkor oluşturur), sekme: "Sarkilar".
- * Linkten içe aktarma: Ultimate Guitar (js-store JSON), akorlar.com ve <pre> kullanan diğer siteler.
+ * Linkten içe aktarma: Ultimate Guitar (js-store JSON), akorlar.com, repertuarim.com ve <pre> kullanan diğer siteler.
  *
  * Kurulum: editörde bir kez "setupAkor" çalıştır.
  * Erişim: Script Properties → AKOR_ALLOWED = ["abf"] (varsayılan yalnızca Ali Berk).

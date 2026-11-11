@@ -183,9 +183,9 @@ Veri Google Sheets'te, fotoğraflar Drive'da — ikisi de Google One yedeğinin 
 - Erişim: Script Properties → `DIZI_ALLOWED` = `["abf"]` (yalnızca Ali Berk). Rabia'yı eklemek için `["abf","rkf"]`.
 - DNS: Squarespace'te `CNAME dizi → aliberkf.github.io`. Google OAuth yetkili kaynaklarında `https://dizi.rabialiberk.com` var.
 
-## Ek: akor.rabialiberk.com (Akor Defteri)
+## Ek: gitar.rabialiberk.com (Akor Defteri)
 
-- Arayüz: ayrı repo `aliberkf/akor` (GitHub Pages, `akor.rabialiberk.com`). Arka uç: `apps-script/Akor.gs` (Kod.gs'in sonuna eklenmiş halde).
+- Arayüz: ayrı repo `aliberkf/gitar` (GitHub Pages, `gitar.rabialiberk.com`). Arka uç: `apps-script/Akor.gs` (Kod.gs'in sonuna eklenmiş halde).
 - Kurulum (`setupAkor`): Drive'da "Akor Defteri" tablosu, sekme `Sarkilar`. Erişim: `AKOR_ALLOWED` = `["abf"]`.
-- Linkten içe aktarma: Ultimate Guitar (sayfadaki js-store verisi) ve akorlar.com gibi `<pre>` kullanan siteler. Site Apps Script'i engellerse (403) arayüz "Yapıştır"ı önerir.
+- Linkten içe aktarma: Ultimate Guitar (sayfadaki js-store verisi) , akorlar.com ve repertuarim.com gibi `<pre>` kullanan siteler. Site Apps Script'i engellerse (403) arayüz "Yapıştır"ı önerir.
 - Ton, kapo ve kaydırma hızı değiştiği anda otomatik kaydedilir.

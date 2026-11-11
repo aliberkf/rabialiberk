@@ -157,7 +157,7 @@ function hash_(s) {
 var ACTIONS = {
   // dizi.rabialiberk.com — ayrıntılar Dizi.gs'te
   dizi: function (p, me) { return Dizi.handle(p, me); },
-  // akor.rabialiberk.com — ayrıntılar Akor.gs'te
+  // gitar.rabialiberk.com — ayrıntılar Akor.gs'te
   akor: function (p, me) { return Akor.handle(p, me); },
 
   bootstrap: function (p, me) {
