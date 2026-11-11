@@ -326,7 +326,7 @@ var Dizi = (function () {
   function epTiming_(show, e) {
     const code = 'S' + pad_(e.sezon) + 'E' + pad_(e.bolum);
     const generic = !e.bolum_adi || /^(episode|bölüm)\s*\d+$/i.test(e.bolum_adi) || e.bolum_adi === 'TBA';
-    const title = show.ad + ' ' + code + (generic ? '' : ' · ' + e.bolum_adi);
+    const title = '📺 ' + show.ad + ' ' + code + (generic ? '' : ' · ' + e.bolum_adi);
     if (e.saat_belli && e.yayin_zamani) {
       const start = new Date(e.yayin_zamani);
       const end = new Date(start.getTime() + (Number(e.sure_dk) || 60) * 60000);
