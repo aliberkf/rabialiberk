@@ -15,7 +15,7 @@
  *     SPREADSHEET_ID   → (yalnızca script Sheet'e bağlı değilse)
  */
 
-var VERSION = '2.0.0';
+var VERSION = '2.1.0';
 var SHEETS = {
   tickets: ['id', 'owner', 'from_place', 'to_place', 'date', 'time', 'mode', 'carrier', 'note', 'created_at', 'created_by'],
   places: ['id', 'name', 'kind', 'parent_id', 'lat', 'lng', 'note', 'created_at'],
@@ -140,6 +140,9 @@ function hash_(s) {
 // İşlemler
 // ---------------------------------------------------------------------------
 var ACTIONS = {
+  // dizi.rabialiberk.com — ayrıntılar Dizi.gs'te
+  dizi: function (p, me) { return Dizi.handle(p, me); },
+
   bootstrap: function (p, me) {
     return {
       places: readAll_('places'),
