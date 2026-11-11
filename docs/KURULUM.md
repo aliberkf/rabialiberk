@@ -171,14 +171,19 @@ git push
 
 Bir dakika içinde yayında. Yanlış bir şey olursa `git log` ile eski sürüme dönmek bir komut.
 
-## Yedek
+## Drive düzeni ve yedek
 
-Veri Google Sheets'te, fotoğraflar Drive'da — ikisi de Google One yedeğinin içinde. Yine de arada **Dosya → İndir → Excel** ile tabloyu indirip repoya `data/` altına koymak iyi alışkanlık.
+Her şey Drive'da **Rabialiberk** klasöründe: `Data` (ana site; Apps Script projesi buna bağlı), `Dizi Takip`, `Akor Defteri`, `Rabialiberk Fotoğraflar` ve `Backup`. Kod ve ayarlar dosya **kimliğiyle** bağlı; klasör içinde taşımak ya da yeniden adlandırmak hiçbir şeyi bozmaz. Silmek bozar.
+
+- **Kod** → GitHub (bu repo + `dizi` + `gitar`).
+- **Veri** → `apps-script/Yedek.gs`: her pazartesi 04:00'te üç tablo `Backup/YYYY-AA-GG/` altına .xlsx olarak yazılır, son 8 hafta tutulur. Elle almak için editörde `yedekAl` çalıştır. Kurulum `setupYedek` ile yapıldı.
+- **Fotoğraflar** kopyalanmaz (alanı ikiye katlar); yanlışlıkla silinen dosya 30 gün Drive çöp kutusunda durur. Tablolarda ayrıca Dosya → Sürüm geçmişi var.
+- `Backup/rabialiberk-veri.xlsx`: siteye ilk aktarılan eski veri, hatıra olarak duruyor.
 
 ## Ek: dizi.rabialiberk.com (Dizi Takip)
 
 - Arayüz: ayrı repo `aliberkf/dizi` (GitHub Pages, `dizi.rabialiberk.com`). Ana siteden link verilmez, arama motorlarına kapalı.
-- Arka uç: bu repodaki `apps-script/Dizi.gs`. Apps Script editöründe `Kod.gs` dosyasının sonuna eklenmiş durumda (tek dosya). Güncellerken `Code.gs` + `Dizi.gs` içeriğini birlikte yapıştır, sonra **Dağıt → Dağıtımları yönet → Yeni sürüm**.
+- Arka uç: bu repodaki `apps-script/Dizi.gs`. Apps Script editöründe `Kod.gs` dosyasının sonuna eklenmiş durumda (tek dosya). Güncellerken `Code.gs` + `Dizi.gs` + `Akor.gs` + `Yedek.gs` içeriğini sırayla birlikte yapıştır, sonra **Dağıt → Dağıtımları yönet → Yeni sürüm**.
 - Kurulum bir kez yapıldı (`setupDizi`): Drive'da "Dizi Takip" tablosu, Google Takvim'de "Televizyon", 6 saatte bir güncelleme tetikleyicisi.
 - Erişim: Script Properties → `DIZI_ALLOWED` = `["abf"]` (yalnızca Ali Berk). Rabia'yı eklemek için `["abf","rkf"]`.
 - DNS: Squarespace'te `CNAME dizi → aliberkf.github.io`. Google OAuth yetkili kaynaklarında `https://dizi.rabialiberk.com` var.
@@ -187,5 +192,5 @@ Veri Google Sheets'te, fotoğraflar Drive'da — ikisi de Google One yedeğinin 
 
 - Arayüz: ayrı repo `aliberkf/gitar` (GitHub Pages, `gitar.rabialiberk.com`). Arka uç: `apps-script/Akor.gs` (Kod.gs'in sonuna eklenmiş halde).
 - Kurulum (`setupAkor`): Drive'da "Akor Defteri" tablosu, sekme `Sarkilar`. Erişim: `AKOR_ALLOWED` = `["abf"]`.
-- Linkten içe aktarma: Ultimate Guitar (sayfadaki js-store verisi) , akorlar.com ve repertuarim.com gibi `<pre>` kullanan siteler. Site Apps Script'i engellerse (403) arayüz "Yapıştır"ı önerir.
+- Linkten içe aktarma: Ultimate Guitar (sayfadaki js-store verisi) , yalnızca Ultimate Guitar ve repertuarim.com (denenmiş, Türkçe karakterler doğru). Diğer siteler için "Yapıştır".
 - Ton, kapo ve kaydırma hızı değiştiği anda otomatik kaydedilir.
