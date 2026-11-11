@@ -15,7 +15,7 @@
  *     SPREADSHEET_ID   → (yalnızca script Sheet'e bağlı değilse)
  */
 
-var VERSION = '2.1.0';
+var VERSION = '2.2.0';
 var SHEETS = {
   tickets: ['id', 'owner', 'from_place', 'to_place', 'date', 'time', 'mode', 'carrier', 'note', 'created_at', 'created_by'],
   places: ['id', 'name', 'kind', 'parent_id', 'lat', 'lng', 'note', 'created_at'],
@@ -86,6 +86,11 @@ function authenticate_(body) {
   var allowed = JSON.parse(props.getProperty('ALLOWED') || '{}');
   if (!clientId || !Object.keys(allowed).length) throw new Error('Sunucu kurulumu eksik: CLIENT_ID / ALLOWED');
 
+  // Ön kontrol: JWT değilse, başka uygulamanınsa ya da süresi geçmişse Google'a hiç sorma (kota koruması)
+  var pre = peekJwt_(idToken);
+  if (!pre || pre.aud !== clientId || !pre.exp || Number(pre.exp) * 1000 < Date.now()) throw authError_('Oturum geçersiz, tekrar giriş yap.');
+  if (pre.email && !allowed[String(pre.email).toLowerCase()]) throw authError_('Bu hesabın güverteye erişimi yok: ' + pre.email);
+
   var cache = CacheService.getScriptCache();
   var key = 'tok_' + hash_(idToken);
   var cached = cache.get(key);
@@ -127,6 +132,16 @@ function noteFailure_(email) {
   var cache = CacheService.getScriptCache();
   var n = Number(cache.get('fail_' + email) || 0) + 1;
   cache.put('fail_' + email, String(n), 900);
+}
+
+/** İmzayı DOĞRULAMADAN yükü okur — yalnızca ön eleme için; asıl doğrulama tokeninfo ile yapılır. */
+function peekJwt_(token) {
+  try {
+    var parts = String(token).split('.');
+    if (parts.length !== 3 || parts[1].length > 4000) return null;
+    var json = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[1] + '==='.slice((parts[1].length + 3) % 4))).getDataAsString();
+    return JSON.parse(json);
+  } catch (e) { return null; }
 }
 
 function authError_(msg) { var e = new Error(msg); e.code = 'auth'; return e; }

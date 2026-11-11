@@ -18,6 +18,8 @@
 function setupDizi() { return Dizi.setup(); }
 /** Tetikleyici: 6 saatte bir tüm dizileri günceller. */
 function diziSyncAll() { return Dizi.syncAll(false); }
+/** Tek seferlik tetikleyici: ekleme/arşivleme sonrası takvim etkinliklerini arka planda işler. */
+function diziCalendarSync() { return Dizi.calendarSync(); }
 
 var Dizi = (function () {
   const TVMAZE = 'https://api.tvmaze.com';
@@ -120,8 +122,9 @@ var Dizi = (function () {
       if (!s) throw new Error('Dizi TVmaze\'de bulunamadı.');
       const existing = db.shows.find(function (x) { return x.tvmaze_id === s.id; });
       if (existing) existing.aktif = true;
-      mergeShow_(db, s, getCal_());
+      mergeShow_(db, s, null);          // takvim arka planda (hızlı cevap)
       saveDb_(db);
+      scheduleCalendarSync_();
       return toClient_(db);
     });
   }
@@ -157,10 +160,8 @@ var Dizi = (function () {
       const show = db.shows.find(function (x) { return x.tvmaze_id === Number(showId); });
       if (!show) throw new Error('Dizi bulunamadı.');
       show.aktif = !!aktif;
-      const cal = getCal_();
-      db.eps.filter(function (e) { return e.dizi_id === show.tvmaze_id; })
-        .forEach(function (e) { syncEvent_(cal, show, e); });
       saveDb_(db);
+      scheduleCalendarSync_();
       return toClient_(db);
     });
   }
@@ -184,6 +185,29 @@ var Dizi = (function () {
     const out = toClient_(loadDb_());
     out.syncResult = res;
     return out;
+  }
+
+  /** Bekleyen takvim işleri: aktif dizilerin gelecek bölümlerini ekler/günceller, arşivlenenleri kaldırır. */
+  function calendarSync() {
+    ScriptApp.getProjectTriggers()
+      .filter(function (t) { return t.getHandlerFunction() === 'diziCalendarSync'; })
+      .forEach(function (t) { ScriptApp.deleteTrigger(t); });
+    return withLock_(function () {
+      const db = loadDb_();
+      const cal = getCal_();
+      if (!cal) return { ok: false };
+      const byId = {};
+      db.shows.forEach(function (s) { byId[s.tvmaze_id] = s; });
+      db.eps.forEach(function (e) { const show = byId[e.dizi_id]; if (show) syncEvent_(cal, show, e); });
+      saveDb_(db);
+      return { ok: true };
+    });
+  }
+
+  function scheduleCalendarSync_() {
+    const pending = ScriptApp.getProjectTriggers()
+      .some(function (t) { return t.getHandlerFunction() === 'diziCalendarSync'; });
+    if (!pending) ScriptApp.newTrigger('diziCalendarSync').timeBased().after(5 * 1000).create();
   }
 
   /** Code.gs'teki ACTIONS'a eklenen işlemler: { action: 'dizi', payload: { fn, args } } */
@@ -490,5 +514,5 @@ var Dizi = (function () {
   }
   function stripHtml_(h) { return String(h || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(); }
 
-  return { setup: setup, syncAll: syncAll, handle: handle };
+  return { setup: setup, syncAll: syncAll, calendarSync: calendarSync, handle: handle };
 })();
