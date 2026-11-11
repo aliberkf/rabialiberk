@@ -174,3 +174,11 @@ Bir dakika içinde yayında. Yanlış bir şey olursa `git log` ile eski sürüm
 ## Yedek
 
 Veri Google Sheets'te, fotoğraflar Drive'da — ikisi de Google One yedeğinin içinde. Yine de arada **Dosya → İndir → Excel** ile tabloyu indirip repoya `data/` altına koymak iyi alışkanlık.
+
+## Ek: dizi.rabialiberk.com (Dizi Takip)
+
+- Arayüz: ayrı repo `aliberkf/dizi` (GitHub Pages, `dizi.rabialiberk.com`). Ana siteden link verilmez, arama motorlarına kapalı.
+- Arka uç: bu repodaki `apps-script/Dizi.gs`. Apps Script editöründe `Kod.gs` dosyasının sonuna eklenmiş durumda (tek dosya). Güncellerken `Code.gs` + `Dizi.gs` içeriğini birlikte yapıştır, sonra **Dağıt → Dağıtımları yönet → Yeni sürüm**.
+- Kurulum bir kez yapıldı (`setupDizi`): Drive'da "Dizi Takip" tablosu, Google Takvim'de "📺 Dizi Takvimi", 6 saatte bir güncelleme tetikleyicisi.
+- Erişim: Script Properties → `DIZI_ALLOWED` = `["abf"]` (yalnızca Ali Berk). Rabia'yı eklemek için `["abf","rkf"]`.
+- DNS: Squarespace'te `CNAME dizi → aliberkf.github.io`. Google OAuth yetkili kaynaklarında `https://dizi.rabialiberk.com` var.
