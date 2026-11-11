@@ -10,10 +10,16 @@
  */
 
 function setupAkor() { return Akor.setup(); }
-/** Editörden içe aktarmayı denemek için: URL'yi değiştirip çalıştır, sonucu günlükte gör. */
+/** Editörden içe aktarmayı denemek için: çalıştır, sonuçları günlükte gör (yalnızca başlık ve uzunluk yazılır). */
 function akorTestImport() {
-  const r = Akor.importUrl('https://akorlar.com/duman-kufi');
-  Logger.log(JSON.stringify({ title: r.title, artist: r.artist, source: r.source, len: r.text.length, head: r.text.slice(0, 120) }));
+  ['https://akorlar.com/duman-kufi',
+   'https://www.repertuarim.com/akor/duman-her-seyi-yak-akor-831.html',
+   'https://tabs.ultimate-guitar.com/tab/oasis/wonderwall-chords-39144'].forEach(function (u) {
+    try {
+      const r = Akor.importUrl(u);
+      Logger.log('OK  ' + r.source + ' | ' + r.artist + ' - ' + r.title + ' | ' + r.text.length + ' karakter | kapo ' + r.capo);
+    } catch (e) { Logger.log('HATA ' + u + ' → ' + e.message); }
+  });
 }
 
 var Akor = (function () {
