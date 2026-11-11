@@ -3,7 +3,7 @@
  * ------------------------------------------------------------
  * Code.gs'teki web uygulamasının içinde çalışır; kimlik doğrulama orada yapılır.
  * Veritabanı: ayrı bir "Akor Defteri" E-Tablosu (setupAkor oluşturur), sekme: "Sarkilar".
- * Linkten içe aktarma: Ultimate Guitar (js-store JSON), akorlar.com, repertuarim.com ve <pre> kullanan diğer siteler.
+ * Linkten içe aktarma: yalnızca denenmiş siteler — Ultimate Guitar (js-store JSON) ve repertuarim.com (<pre>).
  *
  * Kurulum: editörde bir kez "setupAkor" çalıştır.
  * Erişim: Script Properties → AKOR_ALLOWED = ["abf"] (varsayılan yalnızca Ali Berk).
@@ -12,12 +12,11 @@
 function setupAkor() { return Akor.setup(); }
 /** Editörden içe aktarmayı denemek için: çalıştır, sonuçları günlükte gör (yalnızca başlık ve uzunluk yazılır). */
 function akorTestImport() {
-  ['https://akorlar.com/duman-kufi',
-   'https://www.repertuarim.com/akor/duman-her-seyi-yak-akor-831.html',
+  ['https://www.repertuarim.com/akor/duman-her-seyi-yak-akor-831.html',
    'https://tabs.ultimate-guitar.com/tab/oasis/wonderwall-chords-39144'].forEach(function (u) {
     try {
       const r = Akor.importUrl(u);
-      Logger.log('OK  ' + r.source + ' | ' + r.artist + ' - ' + r.title + ' | ' + r.text.length + ' karakter | kapo ' + r.capo);
+      Logger.log('OK  ' + r.source + ' | ' + r.artist + ' - ' + r.title + ' | ' + r.text.length + ' karakter | kapo ' + r.capo + ' | Türkçe harf: ' + /[şŞğĞıİçÇöÖüÜ]/.test(r.text) + ' | çözülmemiş kod: ' + /&[a-z#0-9]+;/i.test(r.text));
     } catch (e) { Logger.log('HATA ' + u + ' → ' + e.message); }
   });
 }
@@ -155,6 +154,10 @@ var Akor = (function () {
   function importUrl(url) {
     url = String(url || '').trim();
     if (!/^https?:\/\/[^\s]+$/i.test(url)) throw new Error('Geçerli bir link değil.');
+    const host = url.replace(/^https?:\/\//i, '').split(/[\/?#]/)[0].toLowerCase();
+    const isUG = /(^|\.)ultimate-guitar\.com$/.test(host);
+    const isRep = /(^|\.)repertuarim\.com$/.test(host);
+    if (!isUG && !isRep) throw new Error('Şimdilik yalnızca Ultimate Guitar ve repertuarim.com linkleri destekleniyor.');
     const res = UrlFetchApp.fetch(url, {
       muteHttpExceptions: true, followRedirects: true,
       headers: {
@@ -169,15 +172,11 @@ var Akor = (function () {
     if (code !== 200) throw new Error('Sayfa açılamadı (' + code + ').');
     const html = res.getContentText();
 
-    if (/ultimate-guitar\.com/i.test(url)) {
-      const ug = parseUG_(html);
-      if (ug) { ug.sourceUrl = url; ug.source = 'Ultimate Guitar'; return ug; }
-    }
-    const gen = parseGeneric_(html);
-    if (!gen) throw new Error('Bu sayfada akor bulunamadı. Akorları kopyalayıp "Yapıştır" ile ekleyebilirsin.');
-    gen.sourceUrl = url;
-    gen.source = url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
-    return gen;
+    const out = isUG ? parseUG_(html) : parseGeneric_(html);
+    if (!out) throw new Error('Bu sayfada akor bulunamadı. Akor sayfasının linki olduğundan emin ol.');
+    out.sourceUrl = url;
+    out.source = isUG ? 'Ultimate Guitar' : 'repertuarim.com';
+    return out;
   }
 
   function parseUG_(html) {
@@ -227,13 +226,22 @@ var Akor = (function () {
     return lines.join('\n').replace(/\n{4,}/g, '\n\n\n');
   }
 
+  const NAMED_ = {
+    quot: '"', apos: "'", lt: '<', gt: '>', nbsp: ' ', amp: '&',
+    ouml: 'ö', Ouml: 'Ö', uuml: 'ü', Uuml: 'Ü', ccedil: 'ç', Ccedil: 'Ç',
+    acirc: 'â', Acirc: 'Â', icirc: 'î', Icirc: 'Î', ucirc: 'û', Ucirc: 'Û',
+    eacute: 'é', egrave: 'è', aacute: 'á', agrave: 'à', iacute: 'í', oacute: 'ó', uacute: 'ú', ntilde: 'ñ',
+    hellip: '…', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', ndash: '–', mdash: '—', middot: '·',
+    laquo: '«', raquo: '»', bull: '•', deg: '°', times: '×', prime: '′', Prime: '″'
+  };
   function decodeEntities_(s) {
-    return String(s)
-      .replace(/&quot;/g, '"').replace(/&#039;|&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&#(\d+);/g, function (_, n) { return String.fromCharCode(Number(n)); })
-      .replace(/&#x([0-9a-f]+);/gi, function (_, n) { return String.fromCharCode(parseInt(n, 16)); })
-      .replace(/&amp;/g, '&');
+    return String(s).replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, function (all, e) {
+      if (e[0] === '#') {
+        const n = e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : Number(e.slice(1));
+        return isFinite(n) ? String.fromCodePoint(n) : all;
+      }
+      return Object.prototype.hasOwnProperty.call(NAMED_, e) ? NAMED_[e] : all;
+    });
   }
 
   function withLock_(fn) {
